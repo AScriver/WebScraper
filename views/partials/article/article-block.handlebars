@@ -1,0 +1,44 @@
+{{!-- TODO: Clean up this dumpster fire --}}
+
+<div class="col-12">
+    <div class="article {{_id}}" data-id="{{_id}}">
+        <div class="article-content">
+            {{#if saved}}
+            <a href="" data-id="{{_id}}"  class="article-btn-unsave float-right">[X]</a>
+            {{/if}}
+
+            <a href="https://www.azcentral.com{{link}}">
+                <h3 class="article-title text-center" data-id="{{_id}}"> {{title}} </h3>
+            </a>
+        
+            <hr>
+            <p data-id="{{_id}}"> {{summary}} </p>
+        </div>
+       
+        <div class="button-row button-row-{{_id}} text-right">
+            {{#if saved}}
+            <a href="" data-id="{{_id}}" class="article-btn-comment">Comment</a>
+            {{/if}}
+
+            {{#unless saved}}
+            <a href="" data-id="{{_id}}"  class="article-btn-save">Save</a>
+            {{/unless}}
+        </div>
+
+        {{#if saved}}
+        <hr>
+        
+
+        <div class="comments">
+            {{#each note}}
+            {{> article/note-block}}
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+    {{#if saved}}
+     <div id="notes"></div>
+     {{/if}}
+</div>
+
+{{!-- body > div > div.row > div:nth-child(1) > div --}}

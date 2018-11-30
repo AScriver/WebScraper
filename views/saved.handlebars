@@ -1,0 +1,16 @@
+{{> navbar/nav}}
+
+<div class="container">
+    <h2>Saved Posts:</h2>
+    {{!-- <div id="notes"></div> --}}
+    <div class="row">
+        {{#if article}}
+        {{#each article}}
+        {{> article/article-block}}
+        {{/each}}
+        {{else}}
+        <h1 class="text-center">No saved articles!</h1>
+        {{/if}}
+    </div>
+    {{!-- might be able to use an if statement in HB instead of making a new "post" file --}}
+</div>

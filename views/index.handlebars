@@ -1,0 +1,11 @@
+{{> navbar/nav}}
+<div class="container">
+    <h2>Latest News:</h2>
+    <div class="row">
+        {{#each article}}
+        {{> article/article-block}}
+        {{/each}}
+
+    </div>
+    {{!-- might be able to use an if statement in HB instead of making a new "post" file --}}
+</div>
