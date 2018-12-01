@@ -38,7 +38,7 @@ mongoose.connect(MONGODB_URI, {
 });
 
 // Routes
-
+// Get all articles that have not yet been saved
 app.get("/", function (req, res) {
     db.Article.find({
             "saved": false
@@ -50,6 +50,7 @@ app.get("/", function (req, res) {
         })
 });
 
+// ROute to get all saved articles
 app.get('/saved', function (req, res) {
     db.Article.find({
             "saved": true
@@ -68,6 +69,7 @@ app.get('/saved', function (req, res) {
         )
 });
 
+// Route to save an individual article.
 app.post('/saved/:id', function (req, res) {
     db.Article.findOneAndUpdate({
             "_id": mongoose.Types.ObjectId(req.params.id)
@@ -85,6 +87,7 @@ app.post('/saved/:id', function (req, res) {
         })
 })
 
+//Route for "unsaving" an article
 app.post('/unsaved/:id', function (req, res) {
     db.Article.findOneAndUpdate({
             "_id": mongoose.Types.ObjectId(req.params.id)
@@ -102,7 +105,7 @@ app.post('/unsaved/:id', function (req, res) {
         })
 })
 
-
+// Route to scrape the AZCentral website.
 app.get("/scrape", function (req, res) {
     axios.get("https://www.azcentral.com/local/")
         .then(function (response) {
@@ -125,7 +128,7 @@ app.get("/scrape", function (req, res) {
 
                 // Because of the way AZCentral is formatted, some data
                 // can't be retrieved in the same format as above.
-                // This if statement ignores them.
+                // This "if" statement ignores them.
                 if (result.title && result.link && result.summary) {
                     db.Article.create(result)
                         .then(function (dbArticle) {
@@ -142,7 +145,6 @@ app.get("/scrape", function (req, res) {
 
 // Route for getting all Articles from the db
 app.get("/articles", function (req, res) {
-    // TODO: Finish the route so it grabs all of the articles
     db.Article.find({
         "saved": false
     }, function (error, found) {
@@ -156,11 +158,6 @@ app.get("/articles", function (req, res) {
 
 // Route for grabbing a specific Article by id, populate it with it's note
 app.get("/articles/:id", function (req, res) {
-    // TODO
-    // ====
-    // Finish the route so it finds one article using the req.params.id,
-    // and run the populate method with "note",
-    // then responds with the article with the note included
     db.Article.findById(req.params.id)
         .populate("note")
         .exec(function (error, found) {
@@ -175,23 +172,19 @@ app.get("/articles/:id", function (req, res) {
 
 // Route for saving/updating an Article's associated Note
 app.post("/articles/:id", function (req, res) {
-    // Create a new note and pass the req.body to the entry
     db.Note.create(req.body)
         .then(function (dbNote) {
-            // If a Note was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Note
-            // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
-            // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
             return db.Article.findOneAndUpdate({ _id: req.params.id }, {$push: { note: dbNote._id }}, { new: true });
         })
         .then(function (dbArticle) {
-            // If we were able to successfully update an Article, send it back to the client
             res.json(dbArticle);
         })
         .catch(function (err) {
-            // If an error occurred, send it to the client
             res.json(err);
         });
 });
+
+// Route for deleting all articles
 app.get("/deleteAll", function (req, res) {
     db.Article.remove({}, function (error, deleted) {
         if (error) {
@@ -202,19 +195,17 @@ app.get("/deleteAll", function (req, res) {
     })
 })
 
+// Route for deleting a single note.
 app.get("/note/:id", function (req, res) {
-    // Create a new note and pass the req.body to the entry
     db.Note.findByIdAndRemove({ _id: req.params.id })
         .then(function (dbNote) {
 
             return db.Article.findOneAndUpdate({ note: req.params.id }, { $pullAll: [{ note: req.params.id }]});
         })
         .then(function (dbArticle) {
-            // If we were able to successfully update an Article, send it back to the client
             res.redirect("/saved");
         })
         .catch(function (err) {
-            // If an error occurred, send it to the client
             res.json(err);
         });
 })
